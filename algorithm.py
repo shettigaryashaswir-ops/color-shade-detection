@@ -42,31 +42,39 @@ def load_dataset():
 color_df = load_dataset()
 
 # ==========================================
-# 3. INDUSTRIAL HIGH-ACCURACY MATCHING ENGINE
+# 3. INDUSTRIAL HIGH-ACCURACY MATCHING ENGINE (FIXED)
 # ==========================================
 def find_nearest_shade(r, g, b):
-    # 1. Convert clicked RGB pixel into the scientific LAB space
-    clicked_rgb_normalized = np.array([[[r / 255.0, g / 255.0, b / 255.0]]])
-    clicked_lab = rgb2lab(clicked_rgb_normalized)
+    # 1. Normalize clicked RGB pixel to 0.0 - 1.0 range
+    clicked_rgb = np.array([r / 255.0, g / 255.0, b / 255.0])
     
-    # 2. Convert entire dataset dataframe into LAB coordinates
-    dataset_rgb = np.stack([color_df['R'], color_df['G'], color_df['B']], axis=-1) / 255.0
-    dataset_rgb_reshaped = np.expand_dims(dataset_rgb, axis=0)
-    dataset_lab = rgb2lab(dataset_rgb_reshaped)
+    # 2. Reshape pixel to 3D matrix shape (1 row, 1 column, 3 channels)
+    clicked_rgb_3d = clicked_rgb.reshape((1, 1, 3))
+    clicked_lab = rgb2lab(clicked_rgb_3d)
     
-    # 3. Calculate Delta E 2000 across the entire database
+    # 3. Pull R, G, B columns explicitly from your dataset
+    r_vals = color_df['R'].values / 255.0
+    g_vals = color_df['G'].values / 255.0
+    b_vals = color_df['B'].values / 255.0
+    
+    # 4. Create a 3D matrix for the dataset to match the library format perfectly
+    # Shape becomes (1 row, N colors, 3 channels)
+    dataset_rgb_3d = np.stack([r_vals, g_vals, b_vals], axis=-1).reshape((1, -1, 3))
+    dataset_lab = rgb2lab(dataset_rgb_3d)
+    
+    # 5. Calculate Delta E 2000 across the perfectly aligned dimensions
     deltas = deltaE_ciede2000(clicked_lab, dataset_lab)
     
-    # Find the row position index with the absolute smallest human-perceived change
+    # 6. Flatten to match the DataFrame sequence
     deltas_flat = deltas.flatten()
     match_idx = np.argmin(deltas_flat)
     min_delta = deltas_flat[match_idx]
     
-    # 4. Turn Delta E into an easy-to-read accuracy score
+    # 7. Convert Delta E cleanly to an intuitive 0-100% accuracy score
     accuracy_score = max(0, int((1 - (min_delta / 100.0)) * 100))
     
-    # FIXED: Changed .loc to .iloc to safely fetch by positional index
     return color_df.iloc[match_idx], accuracy_score
+
 
 
 # ==========================================
