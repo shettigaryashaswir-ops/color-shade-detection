@@ -104,28 +104,9 @@ if target_image is not None:
                 # --- VISUAL COLOR CARD ---
                 st.markdown(f"""
                 <div style="background-color: #f8f9fa; padding: 20px; border-radius: 15px; border: 1px solid #ddd; box-shadow: 2px 2px 12px rgba(0,0,0,0.05);">
-                    <h2 style="color: #333; margin-top: 0;">{matched_row['color_name']}</h2>
-                    <hr style="margin: 10px 0; border: 0; border-top: 1px solid #ccc;">
-                    
-                    <p style="margin-bottom: 5px; font-weight: bold; color: #555;">Color Comparison:</p>
-                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                        <div style="flex: 1; text-align: center;">
-                            <div style="background-color: {hex_clicked}; height: 60px; border-radius: 6px; border: 1px solid #aaa;"></div>
-                            <span style="font-size: 0.8em; color: #666;">Clicked Pixel</span>
-                        </div>
-                        <div style="flex: 1; text-align: center;">
-                            <div style="background-color: {hex_matched}; height: 60px; border-radius: 6px; border: 1px solid #aaa;"></div>
-                            <span style="font-size: 0.8em; color: #666;">Closest Shade</span>
-                        </div>
-                    </div>
-                    
-                    <table style="width:100%; font-size: 0.9em; color: #444; border-collapse: collapse;">
-                        <tr style="border-bottom: 1px solid #eee;"><td style="padding: 5px 0;"><b>Your RGB:</b></td><td style="text-align: right;">[{r}, {g}, {b}]</td></tr>
-                        <tr style="border-bottom: 1px solid #eee;"><td style="padding: 5px 0;"><b>Match RGB:</b></td><td style="text-align: right;">[{matched_row['R']}, {matched_row['G']}, {matched_row['B']}]</td></tr>
-                        <tr style="border-bottom: 1px solid #eee;"><td style="padding: 5px 0;"><b>Your HEX:</b></td><td style="text-align: right;"><code>{hex_clicked}</code></td></tr>
-                        <tr><td style="padding: 5px 0;"><b>Match HEX:</b></td><td style="text-align: right;"><code>{hex_matched}</code></td></tr>
-                    </table>
+                    <h2 style="color: #333; margin-top: 0; margin-bottom: 0;">{matched_row['color_name']}</h2>
                 </div>
                 """, unsafe_allow_html=True)
         else:
+
             st.info("Click anywhere on the image to the left to display its color profile card here!")
