@@ -46,32 +46,28 @@ color_df = load_dataset()
 # ==========================================
 def find_nearest_shade(r, g, b):
     # 1. Convert clicked RGB pixel into the scientific LAB space
-    # (Divide by 255.0 because skimage expects values normalized between 0 and 1)
     clicked_rgb_normalized = np.array([[[r / 255.0, g / 255.0, b / 255.0]]])
     clicked_lab = rgb2lab(clicked_rgb_normalized)
     
     # 2. Convert entire dataset dataframe into LAB coordinates
     dataset_rgb = np.stack([color_df['R'], color_df['G'], color_df['B']], axis=-1) / 255.0
-    # Reshape to a 2D structure so rgb2lab can process the whole batch instantly
     dataset_rgb_reshaped = np.expand_dims(dataset_rgb, axis=0)
     dataset_lab = rgb2lab(dataset_rgb_reshaped)
     
     # 3. Calculate Delta E 2000 across the entire database
-    # This matches colors exactly how the human brain perceives them
     deltas = deltaE_ciede2000(clicked_lab, dataset_lab)
     
-    # Find the row index with the absolute smallest human-perceived change
-    # deltas is 2D due to reshape, flatten it or squeeze to match dataframe indexes
+    # Find the row position index with the absolute smallest human-perceived change
     deltas_flat = deltas.flatten()
     match_idx = np.argmin(deltas_flat)
     min_delta = deltas_flat[match_idx]
     
     # 4. Turn Delta E into an easy-to-read accuracy score
-    # In Delta E, a score under 1.0 is a visually identical match to a human eye.
-    # A Delta E of 100 means the polar opposite color.
     accuracy_score = max(0, int((1 - (min_delta / 100.0)) * 100))
     
-    return color_df.loc[match_idx], accuracy_score
+    # FIXED: Changed .loc to .iloc to safely fetch by positional index
+    return color_df.iloc[match_idx], accuracy_score
+
 
 # ==========================================
 # 4. SIDEBAR INPUTS & ACCURACY CONTROLS
